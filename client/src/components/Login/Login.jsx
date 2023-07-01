@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, Heading, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router";
-import * as Yup from "yup";
+import { formSchema } from "@whatsapp-clone/common-validate"
 import TextField from "./TextField";
 
 
@@ -10,19 +10,27 @@ const Login = () => {
     return (
         <Formik
             initialValues={{ username: "", password: "" }}
-            validationSchema={Yup.object({
-                username: Yup.string()
-                    .required("Username required!")
-                    .min(6, "Username too short!")
-                    .max(28, "Username too long!"),
-                password: Yup.string()
-                    .required("Password required!")
-                    .min(6, "Password too short!")
-                    .max(28, "Password too long!"),
-            })}
+            validationSchema={formSchema}
             onSubmit={(values, actions) => {
-                alert(JSON.stringify(values, null, 2));
+                const vals = {...values};
                 actions.resetForm();
+                fetch('https://localhost:4000/auth/login', {
+                    method: 'POST',
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(vals),
+                }).catch(err => {})
+                    .then(res => {
+                        if (!res || !res.ok || res.status >= 400)
+                            return
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (!data) return
+                        console.log(data)
+                    })
             }}
         >
             <VStack
