@@ -2,6 +2,7 @@
 
 # dependencies
 .idea
+.idea/
 .idea/jsLibraryMappings.xml
 /node_modules
 /.pnp
