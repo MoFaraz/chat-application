@@ -1,11 +1,15 @@
-import { Button, ButtonGroup, Heading, VStack } from "@chakra-ui/react";
+import { Button, ButtonGroup, Heading, VStack, Text } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router";
 import { formSchema } from "@whatsapp-clone/common-validate"
 import TextField from "./TextField";
+import {AccountContext} from "../AccountContext"
+import {useContext, useState} from "react";
 
 
 const Login = () => {
+    const { setUser } = useContext(AccountContext);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
     return (
         <Formik
@@ -21,15 +25,20 @@ const Login = () => {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(vals),
-                }).catch(err => {})
+                }).catch(err => {return})
                     .then(res => {
                         if (!res || !res.ok || res.status >= 400)
                             return
                         return res.json();
                     })
                     .then(data => {
-                        if (!data) return
-                        console.log(data)
+                        if (!data) return;
+                        setUser({ ...data });
+                        if (data.status) {
+                            setError(data.status);
+                        } else if (data.loggedIn) {
+                            navigate("/home");
+                        }
                     })
             }}
         >
@@ -42,6 +51,9 @@ const Login = () => {
                 spacing="1rem"
             >
                 <Heading>Log In</Heading>
+                <Text as="p" color="red.500">
+                    {error}
+                </Text>
                 <TextField
                     name="username"
                     placeholder="Enter username"
