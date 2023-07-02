@@ -2,12 +2,13 @@ const express = require('express')
 const validateForm = require('./../controllers/validateForm')
 const router = express.Router();
 
-router.post('/login', (req, res) => {
-    validateForm(req, res);
-});
+const {
+    handleLogin,
+    attemptLogin,
+    attemptRegister,
+} = require("../controllers/authController");
 
-router.post("/signup", (req, res) => {
-    validateForm(req, res);
-});
+router.route("/login").get(handleLogin).post(validateForm, attemptLogin)
+router.post("/signup", validateForm, attemptRegister)
 
 module.exports = router;
