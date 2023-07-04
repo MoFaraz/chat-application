@@ -1,16 +1,18 @@
-const pool = require('../db')
-const bcrypt = require('bcrypt')
+const pool = require("../db");
+const bcrypt = require("bcrypt");
 
-module.exports.handelLogin = (req, res) => {
-    if (req.session.user && req.session.user.username)
-        res.join({loggedIn:true, username:req.session.user.username})
-    else
-        res.join({loggedIn:false})
-}
+module.exports.handleLogin = (req, res) => {
+    if (req.session.user && req.session.user.username) {
+        res.json({ loggedIn: true, username: req.session.user.username });
+    } else {
+        res.json({ loggedIn: false });
+    }
+};
 
 module.exports.attemptLogin = async (req, res) => {
     const potentialLogin = await pool.query(
-        `SELECT id, username, passhash FROM users u WHERE u.username=${req.body.username}`
+        "SELECT id, username, passhash FROM users u WHERE u.username=$1",
+        [req.body.username]
     );
 
     if (potentialLogin.rowCount > 0) {
@@ -18,14 +20,13 @@ module.exports.attemptLogin = async (req, res) => {
             req.body.password,
             potentialLogin.rows[0].passhash
         );
-
         if (isSamePass) {
             req.session.user = {
                 username: req.body.username,
-                id: potentialLogin.rows[0].id
-            }
+                id: potentialLogin.rows[0].id,
+            };
             res.json({ loggedIn: true, username: req.body.username });
-        }else {
+        } else {
             res.json({ loggedIn: false, status: "Wrong username or password!" });
             console.log("not good");
         }
@@ -33,7 +34,7 @@ module.exports.attemptLogin = async (req, res) => {
         console.log("not good");
         res.json({ loggedIn: false, status: "Wrong username or password!" });
     }
-}
+};
 
 module.exports.attemptRegister = async (req, res) => {
     const existingUser = await pool.query(
@@ -45,7 +46,7 @@ module.exports.attemptRegister = async (req, res) => {
         // register
         const hashedPass = await bcrypt.hash(req.body.password, 10);
         const newUserQuery = await pool.query(
-            `INSERT INTO users(username, passhash) values($1,$2) RETURN id, username`,
+            "INSERT INTO users(username, passhash) values($1,$2) RETURNING id, username",
             [req.body.username, hashedPass]
         );
         req.session.user = {
