@@ -5,7 +5,7 @@ import { Form, Formik } from "formik";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import { AccountContext } from "../AccountContext";
-import TextField from "./TextField";
+import TextField from "../TextField";
 
 const SignUp = () => {
     const { setUser } = useContext(AccountContext);
