@@ -7,6 +7,7 @@ const cors = require("cors");
 const authRouter = require("./routers/authRouter");
 const server = require("http").createServer(app);
 const redisClient = require("./redis");
+const {authorizeUser} = require("./controllers/socketController");
 require("dotenv").config();
 const io = new Server(server, {
     cors: corsConfig
@@ -20,8 +21,11 @@ app.use(sessionMiddleware);
 app.use("/auth", authRouter);
 
 io.use(wrap(sessionMiddleware));
+io.use(authorizeUser)
 io.on("connect", socket => {
+    console.log(socket.user.userid)
     console.log(socket.request.session.user.username)
+    console.log(socket.id)
 });
 
 server.listen(4000, () => {
