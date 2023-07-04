@@ -1,8 +1,8 @@
-import {useNavigate} from "react-router";
-import {useEffect, useState, createContext} from "react";
+import { useNavigate } from "react-router";
+
+const { createContext, useState, useEffect } = require("react");
 
 export const AccountContext = createContext();
-
 
 const UserContext = ({ children }) => {
     const [user, setUser] = useState({ loggedIn: null });
@@ -13,6 +13,7 @@ const UserContext = ({ children }) => {
         })
             .catch(err => {
                 setUser({ loggedIn: false });
+                return;
             })
             .then(r => {
                 if (!r || !r.ok || r.status >= 400) {

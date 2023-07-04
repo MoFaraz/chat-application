@@ -1,11 +1,11 @@
 import { ArrowBackIcon } from "@chakra-ui/icons";
-import { Button, ButtonGroup, Heading, VStack, Text } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
-import { useNavigate } from "react-router";
+import { Button, ButtonGroup, Heading, Text, VStack } from "@chakra-ui/react";
 import { formSchema } from "@whatsapp-clone/common-validate";
+import { Form, Formik } from "formik";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router";
+import { AccountContext } from "../AccountContext";
 import TextField from "./TextField";
-import {AccountContext} from "../AccountContext"
-import {useContext, useState} from "react";
 
 const SignUp = () => {
     const { setUser } = useContext(AccountContext);
@@ -16,19 +16,23 @@ const SignUp = () => {
             initialValues={{ username: "", password: "" }}
             validationSchema={formSchema}
             onSubmit={(values, actions) => {
-                const vals = {...values};
+                const vals = { ...values };
                 actions.resetForm();
-
-                fetch('https://localhost:4000/auth/login', {
-                    method: 'POST',
-                    credentials: 'include',
+                fetch("http://localhost:4000/auth/signup", {
+                    method: "POST",
+                    credentials: "include",
                     headers: {
-                        "Content-Type" : "application/json",
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(vals)
-                }).catch(err => {return})
+                    body: JSON.stringify(vals),
+                })
+                    .catch(err => {
+                        return;
+                    })
                     .then(res => {
-                        if (!res || !res.ok || res.status >= 400) return
+                        if (!res || !res.ok || res.status >= 400) {
+                            return;
+                        }
                         return res.json();
                     })
                     .then(data => {
@@ -39,7 +43,7 @@ const SignUp = () => {
                         } else if (data.loggedIn) {
                             navigate("/home");
                         }
-                    })
+                    });
             }}
         >
             <VStack
@@ -66,6 +70,7 @@ const SignUp = () => {
                     placeholder="Enter password"
                     autoComplete="off"
                     label="Password"
+                    type="password"
                 />
 
                 <ButtonGroup pt="1rem">
